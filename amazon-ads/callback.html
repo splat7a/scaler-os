@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorization Complete - Scaler-OS</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23667eea'/><text x='50' y='50' text-anchor='middle' dominant-baseline='central' font-size='45' font-weight='bold' fill='white' font-family='Arial'>SO</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .card {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            letter-spacing: -0.5px;
+            margin-bottom: 30px;
+        }
+        
+        .logo span {
+            color: #ffd700;
+        }
+        
+        .status-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .status-icon.success {
+            color: #10b981;
+        }
+        
+        .status-icon.error {
+            color: #ef4444;
+        }
+        
+        .status-icon.loading {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        
+        .message {
+            color: #5a6c7d;
+            margin-bottom: 30px;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+        
+        .code-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #2c3e50;
+            word-break: break-all;
+            text-align: left;
+        }
+        
+        .code-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .button.secondary {
+            background: #e9ecef;
+            color: #2c3e50;
+            box-shadow: none;
+            margin-left: 10px;
+        }
+        
+        .button.secondary:hover {
+            background: #dee2e6;
+        }
+        
+        .error-details {
+            background: #fee;
+            border: 1px solid #fcc;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #c00;
+            font-size: 14px;
+            text-align: left;
+        }
+        
+        .info-box {
+            background: #e8f4f8;
+            border: 1px solid #b3e0f2;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #0c5460;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="logo">Scaler<span>-OS</span></div>
+            
+            <!-- Loading State -->
+            <div id="loading-state">
+                <div class="status-icon loading">⚙️</div>
+                <h1>Processing Authorization...</h1>
+                <p class="message">Please wait while we complete the authorization process.</p>
+            </div>
+            
+            <!-- Success State -->
+            <div id="success-state" class="hidden">
+                <div class="status-icon success">✓</div>
+                <h1>Authorization Successful!</h1>
+                <p class="message">Your Amazon Ads API connection has been successfully authorized.</p>
+                
+                <div class="code-box">
+                    <div class="code-label">Authorization Code:</div>
+                    <div id="auth-code"></div>
+                </div>
+                
+                <div class="info-box">
+                    <strong>Next Steps:</strong><br>
+                    Copy the authorization code above and use it in your application to exchange for access tokens.
+                </div>
+                
+                <button onclick="copyCode()" class="button">Copy Code</button>
+                <a href="/" class="button secondary">Return Home</a>
+            </div>
+            
+            <!-- Error State -->
+            <div id="error-state" class="hidden">
+                <div class="status-icon error">✗</div>
+                <h1>Authorization Failed</h1>
+                <p class="message">There was a problem completing the authorization process.</p>
+                
+                <div class="error-details" id="error-details"></div>
+                
+                <div class="info-box">
+                    <strong>What to do:</strong><br>
+                    Please try the authorization process again. If the problem persists, check your application configuration in the Amazon Advertising Console.
+                </div>
+                
+                <a href="/" class="button">Return Home</a>
+            </div>
+            
+            <!-- No Code State -->
+            <div id="no-code-state" class="hidden">
+                <div class="status-icon">ℹ️</div>
+                <h1>OAuth Callback Page</h1>
+                <p class="message">This page handles OAuth authorization callbacks from Amazon Ads API.</p>
+                
+                <div class="info-box">
+                    This page should be reached after completing the Amazon Ads authorization flow. If you're seeing this message, you may have navigated here directly.
+                </div>
+                
+                <a href="/" class="button">Return Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Parse URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Get authorization code and error from URL
+        const code = getUrlParameter('code');
+        const error = getUrlParameter('error');
+        const errorDescription = getUrlParameter('error_description');
+
+        // Hide loading state
+        document.getElementById('loading-state').classList.add('hidden');
+
+        if (code) {
+            // Success - show the code
+            document.getElementById('success-state').classList.remove('hidden');
+            document.getElementById('auth-code').textContent = code;
+        } else if (error) {
+            // Error occurred
+            document.getElementById('error-state').classList.remove('hidden');
+            let errorMessage = `Error: ${error}`;
+            if (errorDescription) {
+                errorMessage += `\nDescription: ${errorDescription}`;
+            }
+            document.getElementById('error-details').textContent = errorMessage;
+        } else {
+            // No code or error - direct navigation
+            document.getElementById('no-code-state').classList.remove('hidden');
+        }
+
+        // Copy code to clipboard
+        function copyCode() {
+            const code = document.getElementById('auth-code').textContent;
+            navigator.clipboard.writeText(code).then(function() {
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                setTimeout(function() {
+                    button.textContent = originalText;
+                }, 2000);
+            }).catch(function(err) {
+                alert('Failed to copy code. Please copy manually.');
+            });
+        }
+    </script>
+</body>
+</html>
